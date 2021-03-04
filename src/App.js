@@ -1,23 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import SearchBar from "./components/SearchBar";
+import Results from "./components/Results";
 
 function App() {
+
+  const [cocktail, setCocktail] = useState([]);
+  const [query, setQuery] = useState("");
+
+  function fetchRandom () {
+    fetch('https://www.thecocktaildb.com/api/json/v1/1/random.php')
+      .then(response => response.json())
+      .then(data => setCocktail(data && data.drinks[0] && data.drinks));
+  }
+
+  function fetchQuery () {
+    fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${query}`)
+      .then(response => response.json())
+      .then(data => setCocktail(data && data.drinks[0] && data.drinks));
+
+  }
+
+  useEffect(() => {
+    fetchRandom ();
+  }, [])
+
+  function handleChange(e) {
+    setQuery(e.target.value);
+  } 
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
+
+      <SearchBar 
+        fetchRandom={fetchRandom}
+        fetchQuery={fetchQuery}
+        handleChange={handleChange}
+        query={query}
+        setQuery={setQuery}
+      />
+
+      {(cocktail) && <Results cocktail={cocktail} />}
+     
     </div>
   );
 }
